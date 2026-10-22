@@ -145,6 +145,13 @@ details[open] .chev{transform:rotate(90deg)}
 .act .av{font-weight:700;font-variant-numeric:tabular-nums}
 .act .av.dash{color:#B8ABA6;font-weight:500}
 .extras{margin-top:4px}
+.tfilters{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding:0 4px}
+.tbtn{
+  font:inherit;font-size:.85rem;font-weight:600;padding:10px 16px;border-radius:999px;
+  border:1.5px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.tbtn.on{background:var(--red);border-color:var(--red);color:#fff}
 .footnote{
   font-size:.78rem;color:var(--ink-soft);line-height:1.6;margin-top:18px;padding:14px 16px;
   background:var(--card);border:1px dashed var(--line);border-radius:12px;
@@ -458,6 +465,10 @@ function extract(tabData,sid,bookKey,tab){
     if(kind==='skip'||kind==='name')continue;
     /* activity column: include only if it has a label or a value */
     if(!lab&&(val==null))continue;
+    /* qualitative-only columns (participación, desempeño, etc.) are not shown */
+    if(/particip|desempe|conduct|comprom|actitud|valoraci|logro/i.test(lab))continue;
+    /* non-numeric marks (No logrado, Ausente, etc.) are not shown either */
+    if(val==='—')continue;
     var an=lab?titleCase(lab):'Actividad';
     if(dup[an]!=null){dup[an]++;an=an+' ('+dup[an]+')';}else{dup[an]=1;}
     if(ci<nameCol)continue;
@@ -486,7 +497,7 @@ function renderSubj(name,d,failed){
     var tb=d.t[i];
     if(!tb.acts.length&&tb.term==null)continue;
     any=true;
-    h+='<div class="term-block"><div class="term-title">'+names[i]+'</div>';
+    h+='<div class="term-block" data-t="'+i+'"><div class="term-title">'+names[i]+'</div>';
     for(var a=0;a<tb.acts.length;a++){
       var v=tb.acts[a][1];
       h+='<div class="act"><span class="an">'+esc(tb.acts[a][0])+'</span><span class="av'+(v==null||v==='—'?' dash':'')+'">'+(v==null?'—':esc(v))+'</span></div>';
@@ -586,7 +597,11 @@ function run(sid){
   Promise.all(ws).then(function(){
     prog.hidden=true;
     var h='<div class="card student-head"><div class="nm">'+esc(fmtName(st.n))+'</div><span class="badge">1° '+st.c+'</span></div>';
-    h+='<p class="legend-note">Tocá una materia para ver las calificaciones parciales de cada trimestre.</p>';
+    h+='<p class="legend-note">Tocá una materia para ver las calificaciones parciales, o elegí un trimestre para filtrar.</p>';
+    h+='<div class="tfilters">'
+      +'<button class="tbtn on" data-t="2" type="button">3er trimestre</button>'
+      +'<button class="tbtn on" data-t="1" type="button">2do trimestre</button>'
+      +'<button class="tbtn on" data-t="0" type="button">1er trimestre</button></div>';
     h+='<div class="subjects">';
     for(var j=0;j<list.length;j++){
       var it=list[j],r=results[it.b+'|'+it.t];
@@ -594,9 +609,31 @@ function run(sid){
       h+=renderSubj(subjName(it.t),r&&r.d,r&&r.fail);
     }
     h+='</div>';
-    h+='<div class="footnote"><span class="live"><b>Lectura en vivo del cuaderno docente</b></span> — cuando un docente carga o corrige una nota en la planilla, aparece acá automáticamente.<br><b>0</b> = trabajo pendiente de entrega · <b>1</b> = no presentado (calificación cerrada) · <b>—</b> = sin calificación numérica.</div>';
+    h+='<div class="footnote"><span class="live"><b>Lectura en vivo del cuaderno docente</b></span> — cuando un docente carga o corrige una nota en la planilla, aparece acá automáticamente.<br><b>0</b> = trabajo pendiente de entrega<br><b>1</b> = no presentado (calificación cerrada)<br><b>—</b> = sin calificación numérica.</div>';
     h+='<button class="btn back" id="backBtn">Hacer otra consulta</button>';
     res.innerHTML=h;
+    var tbns=res.querySelectorAll('.tbtn');
+    for(var bi=0;bi<tbns.length;bi++){
+      tbns[bi].onclick=function(){
+        var bs=res.querySelectorAll('.tbtn'),allOn=true;
+        for(var j=0;j<bs.length;j++)if(!bs[j].classList.contains('on'))allOn=false;
+        if(allOn){
+          for(var k=0;k<bs.length;k++)bs[k].classList.remove('on');
+          this.classList.add('on');
+        }else{
+          this.classList.toggle('on');
+          var any=false;
+          for(var k2=0;k2<bs.length;k2++)if(bs[k2].classList.contains('on'))any=true;
+          if(!any)for(var k3=0;k3<bs.length;k3++)bs[k3].classList.add('on');
+        }
+        var ons={};
+        for(var k4=0;k4<bs.length;k4++)ons[bs[k4].getAttribute('data-t')]=bs[k4].classList.contains('on');
+        var blocks=res.querySelectorAll('.term-block[data-t]');
+        for(var k5=0;k5<blocks.length;k5++){
+          blocks[k5].style.display=ons[blocks[k5].getAttribute('data-t')]?'':'none';
+        }
+      };
+    }
     document.getElementById('backBtn').onclick=function(){
       res.innerHTML='';q.value='';q.focus();window.scrollTo({top:0,behavior:'smooth'});
     };
