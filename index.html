@@ -625,8 +625,8 @@ function run(sid){
     }
     h+='</div>';
     h+='<div class="footnote"><span class="live"><b>Lectura en vivo del cuaderno docente</b></span> — cuando un docente carga o corrige una nota en la planilla, aparece acá automáticamente.<br><b>0</b> = trabajo pendiente de entrega<br><b>1</b> = no presentado (calificación cerrada)<br><b>—</b> = sin calificación numérica.</div>';
-    h+='<button class="btn back" id="backBtn">Hacer otra consulta</button>';
     res.innerHTML=h;
+    document.getElementById('searchCard').hidden=true;
     var tbns=res.querySelectorAll('.tbtn');
     for(var bi=0;bi<tbns.length;bi++){
       tbns[bi].onclick=function(){
@@ -643,9 +643,6 @@ function run(sid){
         }
       };
     }
-    document.getElementById('backBtn').onclick=function(){
-      res.innerHTML='';q.value='';q.focus();window.scrollTo({top:0,behavior:'smooth'});
-    };
     document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
   });
 }
