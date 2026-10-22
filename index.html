@@ -107,7 +107,7 @@ main{flex:1;padding:22px 0 40px}
 .subjects{margin-top:14px;display:flex;flex-direction:column;gap:12px}
 details.subj{overflow:hidden}
 details.subj summary{
-  list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:center;gap:12px;
+  list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   -webkit-tap-highlight-color:transparent;
 }
 details.subj summary::-webkit-details-marker{display:none}
@@ -122,7 +122,7 @@ details.subj.alert .subj-name{color:var(--red-dark)}
 .subj-name{flex:1;min-width:0;font-weight:600;font-size:.98rem}
 .chev{flex:none;color:var(--red);transition:transform .2s}
 details[open] .chev{transform:rotate(90deg)}
-.sumchips{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;flex:none;justify-content:flex-end}
+.sumchips{display:flex;gap:5px;flex-wrap:wrap;flex-basis:100%;margin-top:4px;padding-left:46px;justify-content:flex-start}
 .chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 18px 14px 64px}
 .chip{
   font-size:.74rem;font-weight:600;border-radius:8px;padding:4px 9px;background:#F4EEEA;color:var(--ink-soft);
@@ -494,7 +494,8 @@ function extract(tabData,sid,bookKey,tab){
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 var ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
 var CHEV='<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
-function chip(label,v,cls){
+function chip(label,v,cls,show){
+  if(show===false)return '';
   return '<span class="chip '+cls+'">'+label+' <b>'+(v==null?'—':esc(v))+'</b></span>';
 }
 function numV(v){
@@ -510,9 +511,8 @@ function renderSubj(name,d,failed){
       if(low)break;}
     if(!low){for(var ek0 in d.extras){var en=numV(d.extras[ek0]);if(!isNaN(en)&&en<=5){low=true;break;}}}
   }
-  var h='<details class="card subj'+(low?' alert':'')+'"><summary><span class="subj-ico">'+ICON+'</span><span class="subj-name">'+esc(name)+'</span><span class="sumchips">'
-    +(d?chip('2do trim.',d.t[1].term,'t2')+chip('1er trim.',d.t[0].term,'t1')+chip('Final',d.final,'fin'):'')
-    +'</span>'+CHEV+'</summary>';
+  var sch=d?(chip('2do trim.',d.t[1].term,'t2',d.t[1].term!=null)+chip('1er trim.',d.t[0].term,'t1',d.t[0].term!=null)+chip('Final',d.final,'fin',d.final!=null)):'';
+  var h='<details class="card subj'+(low?' alert':'')+'"><summary><span class="subj-ico">'+ICON+'</span><span class="subj-name">'+esc(name)+'</span>'+CHEV+(sch?'<span class="sumchips">'+sch+'</span>':'')+'</summary>';
   if(failed){h+='<div class="subj-body"><span class="fail">No se pudo leer esta materia del cuaderno en este momento.</span></div></details>';return h;}
   if(!d){h+='<div class="subj-body"><span class="fail">Sin datos cargados para este estudiante.</span></div></details>';return h;}
   h+='<div class="subj-body">';
