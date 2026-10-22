@@ -141,7 +141,7 @@ details[open] .chev{transform:rotate(90deg)}
   font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--red-dark);
   margin-bottom:8px;display:flex;align-items:center;gap:8px;
 }
-.term-title::after{content:"";flex:1;height:1px;background:var(--line)}
+.term-title::after{content:"";flex:1;height:3px;background:var(--red);border-radius:2px;opacity:.75}
 .act{
   display:flex;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px dashed #efe6e2;font-size:.88rem;
 }
@@ -548,11 +548,16 @@ function pickVoice(){
   try{
     var vs=window.speechSynthesis.getVoices();
     if(!vs||!vs.length)return null;
-    var pref=['es-US','es-419','es-AR','es-MX','es-CO','es-CL','es-PE','es-VE'];
+    var pref=['es-AR','es-419','es-US','es-MX','es-CO','es-CL','es-PE','es-VE'];
     for(var j=0;j<pref.length;j++)
       for(var i=0;i<vs.length;i++)
         if(vs[i].lang&&vs[i].lang.replace('_','-').toLowerCase()===pref[j].toLowerCase()){VOICE=vs[i];return VOICE;}
-    for(var k=0;k<vs.length;k++)if(vs[k].lang&&vs[k].lang.toLowerCase().indexOf('es')===0){VOICE=vs[k];return VOICE;}
+    for(var n=0;n<vs.length;n++){
+      var nm=(vs[n].name||'').toLowerCase();
+      if(vs[n].lang&&vs[n].lang.toLowerCase().indexOf('es')===0&&/latin|mexic|argentin|america/.test(nm)){VOICE=vs[n];return VOICE;}
+    }
+    /* no hay voz latina listada: NO fijar voz, dejar que el motor elija por lang=es-MX */
+    return null;
   }catch(e){}
   return null;
 }
@@ -567,7 +572,7 @@ function speak(txt){
     if(!window.speechSynthesis)return;
     var u=new SpeechSynthesisUtterance(txt);
     var v=pickVoice();
-    if(v){u.voice=v;u.lang=v.lang;}else{u.lang='es-ES';}
+    if(v){u.voice=v;u.lang=v.lang;}else{u.lang='es-MX';}
     u.rate=1;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
