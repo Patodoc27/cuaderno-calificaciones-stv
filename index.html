@@ -198,7 +198,7 @@ footer{padding:18px 0 26px;text-align:center;font-size:.72rem;color:var(--ink-so
       <input id="q" type="text" inputmode="text" placeholder="Ej.: Pérez Gómez, Ana María" aria-label="Apellido y nombre del estudiante" required>
       <button class="btn" type="submit" id="goBtn">Buscar</button>
     </form>
-    <p class="hint">Podés escribirlo en cualquier orden y sin tildes — por ejemplo <b>“Aban Delfina”</b> o <b>“Delfina Nahir Aban”</b>.</p>
+    <p class="hint">Podés escribirlo en cualquier orden y sin tildes — por ejemplo <b>“Pérez Ana”</b> o <b>“Ana María Pérez”</b>.</p>
     <div class="msg" id="msg" role="status" aria-live="polite"></div>
     <div class="progress" id="progress" hidden><span class="spin"></span><span id="progressTxt"></span></div>
     <div class="choices" id="choices"></div>
@@ -544,7 +544,7 @@ form.addEventListener('submit',function(e){
   res.innerHTML='';choices.innerHTML='';setMsg('');prog.hidden=true;
   var matches=matchStudent(input);
   if(!matches.length){
-    setMsg('No encontré a <b>'+esc(input)+'</b>. Probá escribirlo igual que en los comunicados de la escuela — apellido y nombre completos (podés omitir las tildes).<ul><li>Ej.: <i>“Aban Balboa, Delfina Nahir”</i></li><li>Si el apellido es compuesto, escribilo completo.</li></ul>',true);
+    setMsg('No encontré a <b>'+esc(input)+'</b>. Probá escribirlo igual que en los comunicados de la escuela — apellido y nombre completos (podés omitir las tildes).<ul><li>Ej.: <i>“Pérez Gómez, Ana María”</i></li><li>Si el apellido es compuesto, escribilo completo.</li></ul>',true);
     return;
   }
   if(matches.length>1&&matches[0].score===matches[1].score){
