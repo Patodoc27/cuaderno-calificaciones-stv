@@ -473,7 +473,7 @@ function renderSubj(name,d,failed){
   var h='<details class="card subj"><summary><span class="subj-ico">'+ICON+'</span><span class="subj-name">'+esc(name)+'</span>'+CHEV+'</summary>';
   if(failed){h+='<div class="subj-body"><span class="fail">No se pudo leer esta materia del cuaderno en este momento.</span></div></details>';return h;}
   if(!d){h+='<div class="subj-body"><span class="fail">Sin datos cargados para este estudiante.</span></div></details>';return h;}
-  h+='<div class="chips">'+chip('3er trim.',d.t[2].term,'t3')+chip('2do trim.',d.t[1].term,'')+chip('1er trim.',d.t[0].term,'')+chip('Final',d.final,'fin')+'</div>';
+  h+='<div class="chips">'+chip('3er trim.',d.t[2].term,'t3')+chip('Final',d.final,'fin')+'</div>';
   h+='<div class="subj-body">';
   var names=['Primer trimestre','Segundo trimestre','Tercer trimestre'];
   var any=false;
