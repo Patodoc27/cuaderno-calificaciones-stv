@@ -111,6 +111,9 @@ details.subj summary{
   -webkit-tap-highlight-color:transparent;
 }
 details.subj summary::-webkit-details-marker{display:none}
+details.subj.alert{border-color:var(--red);box-shadow:0 0 0 1px var(--red),0 8px 22px rgba(152,30,30,.14);background:linear-gradient(180deg,#fdf3f1,var(--card) 55%)}
+details.subj.alert .subj-ico{background:var(--red);color:#fff}
+details.subj.alert .subj-name{color:var(--red-dark)}
 .subj-ico{
   flex:none;width:34px;height:34px;border-radius:10px;background:var(--red-soft);color:var(--red-dark);
   display:flex;align-items:center;justify-content:center;
@@ -145,6 +148,7 @@ details[open] .chev{transform:rotate(90deg)}
 .act .an{flex:1;min-width:0;color:var(--ink-soft)}
 .act .av{font-weight:700;font-variant-numeric:tabular-nums}
 .act .av.dash{color:#B8ABA6;font-weight:500}
+.act .av.low{color:var(--red)}
 .extras{margin-top:4px}
 .tfilters{display:flex;gap:6px;flex-wrap:nowrap;margin-top:14px;padding:0 4px}
 .tbtn{
@@ -493,8 +497,20 @@ var CHEV='<svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="non
 function chip(label,v,cls){
   return '<span class="chip '+cls+'">'+label+' <b>'+(v==null?'—':esc(v))+'</b></span>';
 }
+function numV(v){
+  if(v==null||v==='—')return NaN;
+  var n=parseFloat(String(v).replace(',','.'));
+  return isNaN(n)?NaN:n;
+}
 function renderSubj(name,d,failed){
-  var h='<details class="card subj"><summary><span class="subj-ico">'+ICON+'</span><span class="subj-name">'+esc(name)+'</span><span class="sumchips">'
+  var low=false;
+  if(d){
+    for(var li=0;li<3;li++){var la=d.t[li].acts;
+      for(var lj=0;lj<la.length;lj++){var ln=numV(la[lj][1]);if(!isNaN(ln)&&ln<=5){low=true;break;}}
+      if(low)break;}
+    if(!low){for(var ek0 in d.extras){var en=numV(d.extras[ek0]);if(!isNaN(en)&&en<=5){low=true;break;}}}
+  }
+  var h='<details class="card subj'+(low?' alert':'')+'"><summary><span class="subj-ico">'+ICON+'</span><span class="subj-name">'+esc(name)+'</span><span class="sumchips">'
     +(d?chip('2do trim.',d.t[1].term,'t2')+chip('1er trim.',d.t[0].term,'t1')+chip('Final',d.final,'fin'):'')
     +'</span>'+CHEV+'</summary>';
   if(failed){h+='<div class="subj-body"><span class="fail">No se pudo leer esta materia del cuaderno en este momento.</span></div></details>';return h;}
@@ -509,8 +525,9 @@ function renderSubj(name,d,failed){
     any=true;
     h+='<div class="term-block" data-t="'+i+'"><div class="term-title">'+names[i]+'</div>';
     for(var a=0;a<tb.acts.length;a++){
-      var v=tb.acts[a][1];
-      h+='<div class="act"><span class="an">'+esc(tb.acts[a][0])+'</span><span class="av'+(v==null||v==='—'?' dash':'')+'">'+(v==null?'—':esc(v))+'</span></div>';
+      var v=tb.acts[a][1],nv=numV(v);
+      var vc=(v==null||v==='—')?' dash':((!isNaN(nv)&&nv<=5)?' low':'');
+      h+='<div class="act"><span class="an">'+esc(tb.acts[a][0])+'</span><span class="av'+vc+'">'+(v==null?'—':esc(v))+'</span></div>';
     }
     if(!tb.acts.length)h+='<div class="act"><span class="an">Sin actividades cargadas aún</span><span class="av dash">—</span></div>';
     h+='</div>';
