@@ -504,15 +504,15 @@ function numV(v){
   return isNaN(n)?NaN:n;
 }
 function renderSubj(name,d,failed){
-  var low=false;
+  var lows=[0,0,0],low=false;
   if(d){
     for(var li=0;li<3;li++){var la=d.t[li].acts;
-      for(var lj=0;lj<la.length;lj++){var ln=numV(la[lj][1]);if(!isNaN(ln)&&ln<=5){low=true;break;}}
-      if(low)break;}
-    if(!low){for(var ek0 in d.extras){var en=numV(d.extras[ek0]);if(!isNaN(en)&&en<=5){low=true;break;}}}
+      for(var lj=0;lj<la.length;lj++){var ln=numV(la[lj][1]);if(!isNaN(ln)&&ln<=5){lows[li]=1;break;}}}
+    for(var ek0 in d.extras){var en=numV(d.extras[ek0]);if(!isNaN(en)&&en<=5){lows[2]=1;break;}}
+    low=lows[0]||lows[1]||lows[2];
   }
   var sch=d?(chip('2do trim.',d.t[1].term,'t2',d.t[1].term!=null)+chip('1er trim.',d.t[0].term,'t1',d.t[0].term!=null)+chip('Final',d.final,'fin',d.final!=null)):'';
-  var h='<details class="card subj'+(low?' alert':'')+'"><summary><span class="subj-ico">'+ICON+'</span><span class="subj-name">'+esc(name)+'</span>'+CHEV+(sch?'<span class="sumchips">'+sch+'</span>':'')+'</summary>';
+  var h='<details class="card subj'+(low?' alert':'')+'" data-lows="'+lows.join(',')+'"><summary><span class="subj-ico">'+ICON+'</span><span class="subj-name">'+esc(name)+'</span>'+CHEV+(sch?'<span class="sumchips">'+sch+'</span>':'')+'</summary>';
   if(failed){h+='<div class="subj-body"><span class="fail">No se pudo leer esta materia del cuaderno en este momento.</span></div></details>';return h;}
   if(!d){h+='<div class="subj-body"><span class="fail">Sin datos cargados para este estudiante.</span></div></details>';return h;}
   h+='<div class="subj-body">';
@@ -657,6 +657,12 @@ function run(sid){
         for(var k5=0;k5<blocks.length;k5++){
           var t=blocks[k5].getAttribute('data-t');
           blocks[k5].style.display=(!any||ons[t])?'':'none';
+        }
+        var subs=res.querySelectorAll('details.subj[data-lows]');
+        for(var k6=0;k6<subs.length;k6++){
+          var lw=subs[k6].getAttribute('data-lows').split(',');
+          var vis=(!any||ons['0'])&&lw[0]==='1'||(!any||ons['1'])&&lw[1]==='1'||(!any||ons['2'])&&lw[2]==='1';
+          subs[k6].classList.toggle('alert',vis);
         }
       };
     }
