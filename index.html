@@ -547,19 +547,41 @@ function pickVoice(){
   if(VOICE)return VOICE;
   try{
     var vs=window.speechSynthesis.getVoices();
-    for(var i=0;i<vs.length;i++)if(vs[i].lang&&vs[i].lang.toLowerCase().indexOf('es')===0){VOICE=vs[i];return VOICE;}
+    if(!vs||!vs.length)return null;
+    var pref=['es-US','es-419','es-AR','es-MX','es-CO','es-CL','es-PE','es-VE'];
+    for(var j=0;j<pref.length;j++)
+      for(var i=0;i<vs.length;i++)
+        if(vs[i].lang&&vs[i].lang.replace('_','-').toLowerCase()===pref[j].toLowerCase()){VOICE=vs[i];return VOICE;}
+    for(var k=0;k<vs.length;k++)if(vs[k].lang&&vs[k].lang.toLowerCase().indexOf('es')===0){VOICE=vs[k];return VOICE;}
   }catch(e){}
   return null;
 }
+try{
+  if(window.speechSynthesis){
+    window.speechSynthesis.onvoiceschanged=function(){pickVoice();};
+    pickVoice();
+  }
+}catch(e){}
 function speak(txt){
   try{
     if(!window.speechSynthesis)return;
     var u=new SpeechSynthesisUtterance(txt);
-    var v=pickVoice();if(v)u.voice=v;
-    u.lang='es-ES';u.rate=1;
+    var v=pickVoice();
+    if(v){u.voice=v;u.lang=v.lang;}else{u.lang='es-ES';}
+    u.rate=1;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(u);
   }catch(e){}
+}
+function speakWelcome(st){
+  var t='Bienvenido al cuaderno de calificaciones de '+fmtName(st.n);
+  /* espera a que Chrome cargue la lista de voces para no arrancar con la voz por defecto */
+  if(!window.speechSynthesis){return;}
+  if(VOICE||window.speechSynthesis.getVoices().length){speak(t);return;}
+  var tries=0,iv=setInterval(function(){
+    tries++;
+    if(pickVoice()||tries>10){clearInterval(iv);speak(t);}
+  },200);
 }
 function speakFilter(ons,any){
   var names={'2':'tercer trimestre','1':'segundo trimestre','0':'primer trimestre'};
@@ -674,7 +696,7 @@ function run(sid){
     h+='<div class="footnote"><span class="live"><b>Lectura en vivo del cuaderno docente</b></span> — cuando un docente carga o corrige una nota en la planilla, aparece acá automáticamente.<br><b>0</b> = trabajo pendiente de entrega<br><b>1</b> = no presentado (calificación cerrada)<br><b>—</b> = sin calificación numérica.</div>';
     res.innerHTML=h;
     document.getElementById('searchCard').hidden=true;
-    speak('Bienvenido al cuaderno de calificaciones de '+fmtName(st.n));
+    speakWelcome(st);
     var tbns=res.querySelectorAll('.tbtn');
     for(var bi=0;bi<tbns.length;bi++){
       tbns[bi].onclick=function(){
