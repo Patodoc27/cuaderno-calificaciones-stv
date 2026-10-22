@@ -523,7 +523,7 @@ function renderSubj(name,d,failed){
     var tb=d.t[i];
     if(!tb.acts.length&&tb.term==null)continue;
     any=true;
-    h+='<div class="term-block" data-t="'+i+'"><div class="term-title">'+names[i]+'</div>';
+    h+='<div class="term-block" data-t="'+i+'" style="display:none"><div class="term-title">'+names[i]+'</div>';
     for(var a=0;a<tb.acts.length;a++){
       var v=tb.acts[a][1],nv=numV(v);
       var vc=(v==null||v==='—')?' dash':((!isNaN(nv)&&nv<=5)?' low':'');
@@ -535,7 +535,7 @@ function renderSubj(name,d,failed){
   if(!any)h+='<span class="fail">Todavía no hay calificaciones cargadas en esta materia.</span>';
   var exKeys=Object.keys(d.extras);
   if(exKeys.length){
-    h+='<div class="term-block extras"><div class="term-title">Otras instancias</div>';
+    h+='<div class="term-block extras" data-t="2" style="display:none"><div class="term-title">Otras instancias</div>';
     for(var e=0;e<exKeys.length;e++)h+='<div class="act"><span class="an">'+esc(exKeys[e])+'</span><span class="av">'+esc(d.extras[exKeys[e]])+'</span></div>';
     h+='</div>';
   }
@@ -569,7 +569,7 @@ function speakFilter(ons,any){
   if(sel.length===3)frase='las notas del tercero, segundo y primer trimestre';
   else if(sel.length===2)frase='las notas del '+ord[sel[0]]+' y '+names[sel[1]];
   else if(sel.length===1)frase='las notas del '+names[sel[0]];
-  else frase='las notas de todos los trimestres';
+  else {speak('No hay ningún trimestre seleccionado. Elija un trimestre para ver las calificaciones.');return;}
   speak('Está visualizando '+frase);
 }
 function fmtName(n){
@@ -687,7 +687,7 @@ function run(sid){
         var blocks=res.querySelectorAll('.term-block[data-t]');
         for(var k5=0;k5<blocks.length;k5++){
           var t=blocks[k5].getAttribute('data-t');
-          blocks[k5].style.display=(!any||ons[t])?'':'none';
+          blocks[k5].style.display=ons[t]?'':'none';
         }
         var subs=res.querySelectorAll('details.subj[data-lows]');
         for(var k6=0;k6<subs.length;k6++){
