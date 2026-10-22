@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Colegio Santo Tomás de Villanueva · Consulta de calificaciones</title>
 <meta name="description" content="Consulta de calificaciones para familias — Colegio Santo Tomás de Villanueva">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,29 +48,33 @@ header.hero::after{
 }
 .hero-inner{display:flex;align-items:center;gap:16px;position:relative;z-index:1}
 .crest{
-  width:74px;height:74px;border-radius:50%;object-fit:cover;flex:none;
+  width:82px;height:82px;border-radius:50%;object-fit:cover;flex:none;
   border:3px solid rgba(255,255,255,.85);box-shadow:0 4px 14px rgba(0,0,0,.28);background:#fff;
 }
-.hero-txt small{display:block;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;opacity:.85;font-weight:600}
-.hero-txt h1{font-family:'Fraunces',Georgia,serif;font-weight:800;font-size:clamp(1.28rem,5.4vw,1.7rem);line-height:1.15;margin:2px 0 3px}
-.hero-txt p{font-size:.82rem;opacity:.92}
+.hero-txt small{display:block;font-size:.86rem;letter-spacing:.14em;text-transform:uppercase;opacity:.9;font-weight:600}
+.hero-txt h1{font-family:'Fraunces',Georgia,serif;font-weight:800;font-size:clamp(1.6rem,6.8vw,2.15rem);line-height:1.12;margin:3px 0 5px}
+.hero-txt p{font-size:.95rem;opacity:.95}
 main{flex:1;padding:22px 0 40px}
 .card{
   background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
   box-shadow:0 6px 22px rgba(126,31,36,.07);
 }
 .search-card{padding:22px 20px 20px}
+.gate{padding:30px 24px 26px}
+.gate h2{font-size:1.55rem}
+.gate .sub{font-size:1rem}
+.gate .hint{font-size:.88rem}
 .search-card h2{font-family:'Fraunces',Georgia,serif;font-size:1.22rem;font-weight:650;margin-bottom:6px}
 .search-card .sub{font-size:.85rem;color:var(--ink-soft);margin-bottom:16px;line-height:1.45}
 .field{display:flex;gap:10px}
 .field input{
-  flex:1;min-width:0;font:inherit;font-size:1rem;padding:13px 14px;border:1.5px solid var(--line);
+  flex:1;min-width:0;font:inherit;font-size:1.05rem;padding:15px 16px;border:1.5px solid var(--line);
   border-radius:12px;background:#FDFBFA;color:var(--ink);outline:none;transition:border-color .15s, box-shadow .15s;
 }
 .field input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(172,54,54,.14)}
 .btn{
-  font:inherit;font-weight:600;font-size:.95rem;color:#fff;background:var(--red);
-  border:none;border-radius:12px;padding:13px 20px;cursor:pointer;transition:background .15s, transform .05s;
+  font:inherit;font-weight:600;font-size:1.02rem;color:#fff;background:var(--red);
+  border:none;border-radius:12px;padding:15px 22px;cursor:pointer;transition:background .15s, transform .05s;
   white-space:nowrap;
 }
 .btn:hover{background:var(--red-dark)}
@@ -176,7 +180,7 @@ footer{padding:18px 0 26px;text-align:center;font-size:.72rem;color:var(--ink-so
 </header>
 <main>
 <div class="wrap">
-  <section class="card search-card" id="gateCard">
+  <section class="card search-card gate" id="gateCard">
     <h2>Acceso para familias</h2>
     <p class="sub">Ingresá la <b>clave de consulta</b> que compartió el colegio para ver las calificaciones.</p>
     <form id="gateForm" class="field" autocomplete="off">
