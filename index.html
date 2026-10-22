@@ -407,6 +407,14 @@ function cellVal(c){
   if(/^-?\d+([.,]\d+)?$/.test(t))return t;
   return '—';
 }
+function termInt(v){
+  /* TERM/FINAL columns: always integer, even when the sheet holds a formula
+     (e.g. 7.77 -> 8); teacher-closed notes are whole numbers */
+  if(v==null||v==='—')return v;
+  var n=parseFloat(String(v).replace(',','.'));
+  if(isNaN(n))return v;
+  return String(Math.round(n));
+}
 function classify(lab){
   var l=norm(lab);
   if(!l)return'unknown';
@@ -469,11 +477,11 @@ function extract(tabData,sid,bookKey,tab){
     var cell=row.c?row.c[ci]:null;
     var val=cellVal(cell);
     if(kind==='term'){
-      if(termSeen<3)res.t[termSeen].term=val;
+      if(termSeen<3)res.t[termSeen].term=termInt(val);
       termSeen++;cur=termSeen<3?termSeen:2;dup={};
       continue;
     }
-    if(kind==='final'){res.final=val;continue;}
+    if(kind==='final'){res.final=termInt(val);continue;}
     if(kind==='intens'){if(val!=null&&val!=='—')res.extras['Intensificación']=val;continue;}
     if(kind==='mesa'){if(val!=null&&val!=='—')res.extras[titleCase(lab)]=val;continue;}
     if(kind==='skip'||kind==='name')continue;
