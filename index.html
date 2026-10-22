@@ -119,14 +119,15 @@ details.subj summary::-webkit-details-marker{display:none}
 .subj-name{flex:1;min-width:0;font-weight:600;font-size:.98rem}
 .chev{flex:none;color:var(--red);transition:transform .2s}
 details[open] .chev{transform:rotate(90deg)}
+.sumchips{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;flex:none;justify-content:flex-end}
 .chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 18px 14px 64px}
 .chip{
   font-size:.74rem;font-weight:600;border-radius:8px;padding:4px 9px;background:#F4EEEA;color:var(--ink-soft);
   border:1px solid transparent;
 }
 .chip b{color:var(--ink);font-size:.82rem}
-.chip.t3{background:var(--red-soft);color:var(--red-dark);border-color:#e3c1bd}
-.chip.t3 b{color:var(--red-dark)}
+.chip.t3,.chip.t2,.chip.t1{background:var(--red-soft);color:var(--red-dark);border-color:#e3c1bd}
+.chip.t3 b,.chip.t2 b,.chip.t1 b{color:var(--red-dark)}
 .chip.fin{background:var(--ink);color:#fff}
 .chip.fin b{color:#fff}
 .subj-body{border-top:1px solid var(--line);padding:14px 18px 18px}
@@ -145,9 +146,9 @@ details[open] .chev{transform:rotate(90deg)}
 .act .av{font-weight:700;font-variant-numeric:tabular-nums}
 .act .av.dash{color:#B8ABA6;font-weight:500}
 .extras{margin-top:4px}
-.tfilters{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding:0 4px}
+.tfilters{display:flex;gap:6px;flex-wrap:nowrap;margin-top:14px;padding:0 4px}
 .tbtn{
-  font:inherit;font-size:.85rem;font-weight:600;padding:10px 16px;border-radius:999px;
+  font:inherit;font-size:.76rem;font-weight:600;padding:7px 11px;border-radius:999px;white-space:nowrap;
   border:1.5px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer;
   transition:background .15s,border-color .15s;
 }
@@ -304,6 +305,7 @@ function lev1(a,b){
   return diff+(la-i)+(lb-j)<=1;
 }
 function tIn(t,set){for(var k=0;k<set.length;k++)if(lev1(t,set[k]))return true;return false;}
+function tEx(t,set){return set.indexOf(t)>=0;}
 function titleCase(s){
   s=String(s).replace(/\s+/g,' ').replace(/^\s+|\s+$/g,'');
   var upper=(s.replace(/[^A-Za-zÁÉÍÓÚÜÑ]/g,'').match(/[A-ZÁÉÍÓÚÜÑ]/g)||[]).length;
@@ -329,7 +331,7 @@ function matchStudent(input){
     var st=ROSTER[i];
     if(!st)continue;
     var S=st.s,G=st.g,U=S.concat(G);
-    var okS=false,okG=false,okAll=true;
+    var okS=false,okG=false,okAll=true,exact=false;
     if(sPart&&sPart.length){
       var cand=[[sPart,gPart],[gPart,sPart]];
       for(var ci=0;ci<2;ci++){
@@ -340,22 +342,29 @@ function matchStudent(input){
           ||(jS&&gp.every(function(t){return tIn(t,G);}));
         var os=sp.some(function(t){return tIn(t,S);})||jS;
         var og=gp.some(function(t){return tIn(t,G);});
-        if(oa&&os&&og){okAll=okS=okG=true;break;}
+        if(oa&&os&&og){
+          okAll=okS=okG=true;
+          exact=sp.every(function(t){return tEx(t,U);})&&gp.every(function(t){return tEx(t,U);})
+            &&sp.some(function(t){return tEx(t,S);})&&gp.some(function(t){return tEx(t,G);});
+          break;
+        }
       }
     }else{
       okAll=pool.every(function(t){return tIn(t,U);});
       okS=pool.some(function(t){return tIn(t,S);});
       okG=pool.some(function(t){return tIn(t,G);});
+      exact=okAll&&pool.every(function(t){return tEx(t,U);})
+        &&pool.some(function(t){return tEx(t,S);})&&pool.some(function(t){return tEx(t,G);});
       if(!okS){var joined=pool.join('');if(joined&&lev1(joined,S.join('')))okS=true;}
       if(!(okAll&&okS&&okG)){
         for(var k=1;k<pool.length;k++){
           var head=pool.slice(0,k),tail=pool.slice(k);
-          if(lev1(head.join(''),S.join(''))&&tail.every(function(t){return tIn(t,G);})){okAll=okS=okG=true;break;}
-          if(lev1(tail.join(''),S.join(''))&&head.every(function(t){return tIn(t,G);})){okAll=okS=okG=true;break;}
+          if(lev1(head.join(''),S.join(''))&&tail.every(function(t){return tIn(t,G);})){okAll=okS=okG=true;exact=false;break;}
+          if(lev1(tail.join(''),S.join(''))&&head.every(function(t){return tIn(t,G);})){okAll=okS=okG=true;exact=false;break;}
         }
       }
     }
-    if(okAll&&okS&&okG)out.push({i:i,score:pool.length});
+    if(okAll&&okS&&okG)out.push({i:i,score:pool.length,exact:exact});
   }
   out.sort(function(a,b){return b.score-a.score;});
   return out;
@@ -485,10 +494,11 @@ function chip(label,v,cls){
   return '<span class="chip '+cls+'">'+label+' <b>'+(v==null?'—':esc(v))+'</b></span>';
 }
 function renderSubj(name,d,failed){
-  var h='<details class="card subj"><summary><span class="subj-ico">'+ICON+'</span><span class="subj-name">'+esc(name)+'</span>'+CHEV+'</summary>';
+  var h='<details class="card subj"><summary><span class="subj-ico">'+ICON+'</span><span class="subj-name">'+esc(name)+'</span><span class="sumchips">'
+    +(d?chip('2do trim.',d.t[1].term,'t2')+chip('1er trim.',d.t[0].term,'t1')+chip('Final',d.final,'fin'):'')
+    +'</span>'+CHEV+'</summary>';
   if(failed){h+='<div class="subj-body"><span class="fail">No se pudo leer esta materia del cuaderno en este momento.</span></div></details>';return h;}
   if(!d){h+='<div class="subj-body"><span class="fail">Sin datos cargados para este estudiante.</span></div></details>';return h;}
-  h+='<div class="chips">'+chip('Final',d.final,'fin')+'</div>';
   h+='<div class="subj-body">';
   var names=['Primer trimestre','Segundo trimestre','Tercer trimestre'];
   var any=false;
@@ -558,8 +568,9 @@ form.addEventListener('submit',function(e){
     setMsg('No encontré a <b>'+esc(input)+'</b>. Probá escribirlo igual que en los comunicados de la escuela — apellido y nombre completos (podés omitir las tildes).<ul><li>Ej.: <i>“Pérez Gómez, Ana María”</i></li><li>Si el apellido es compuesto, escribilo completo.</li></ul>',true);
     return;
   }
-  if(matches.length>1&&matches[0].score===matches[1].score){
-    setMsg('Encontré más de una coincidencia. Elegí el estudiante:');
+  var tied=matches.length>1&&matches[0].score===matches[1].score;
+  if(tied||!matches[0].exact){
+    setMsg(tied?'Encontré más de una coincidencia. Elegí el estudiante:':'Encontré coincidencias aproximadas. Tocá el estudiante correcto para ver sus calificaciones:');
     matches.slice(0,6).forEach(function(m){
       var st=ROSTER[m.i];
       var b=document.createElement('button');
@@ -572,7 +583,9 @@ form.addEventListener('submit',function(e){
   }
   run(matches[0].i);
 });
+var runSeq=0;
 function run(sid){
+  var mySeq=++runSeq;
   var st=ROSTER[sid];
   choices.innerHTML='';res.innerHTML='';
   tabCache={};
@@ -596,17 +609,18 @@ function run(sid){
   }
   var ws=[];for(var i=0;i<4;i++)ws.push(worker());
   Promise.all(ws).then(function(){
+    if(mySeq!==runSeq)return;
     prog.hidden=true;
     var h='<div class="card student-head"><div class="nm">'+esc(fmtName(st.n))+'</div><span class="badge">1° '+st.c+'</span></div>';
     h+='<p class="legend-note">Tocá una materia para ver las calificaciones parciales, o elegí un trimestre para filtrar.</p>';
     h+='<div class="tfilters">'
-      +'<button class="tbtn on" data-t="2" type="button">3er trimestre</button>'
-      +'<button class="tbtn on" data-t="1" type="button">2do trimestre</button>'
-      +'<button class="tbtn on" data-t="0" type="button">1er trimestre</button></div>';
+      +'<button class="tbtn" data-t="2" type="button">3er trimestre</button>'
+      +'<button class="tbtn" data-t="1" type="button">2do trimestre</button>'
+      +'<button class="tbtn" data-t="0" type="button">1er trimestre</button></div>';
     h+='<div class="subjects">';
     for(var j=0;j<list.length;j++){
       var it=list[j],r=results[it.b+'|'+it.t];
-      if(r&&r.skip)continue;
+      if(r&&r.skip){h+=renderSubj(subjName(it.t),null,true);continue;}
       h+=renderSubj(subjName(it.t),r&&r.d,r&&r.fail);
     }
     h+='</div>';
@@ -616,22 +630,16 @@ function run(sid){
     var tbns=res.querySelectorAll('.tbtn');
     for(var bi=0;bi<tbns.length;bi++){
       tbns[bi].onclick=function(){
-        var bs=res.querySelectorAll('.tbtn'),allOn=true;
-        for(var j=0;j<bs.length;j++)if(!bs[j].classList.contains('on'))allOn=false;
-        if(allOn){
-          for(var k=0;k<bs.length;k++)bs[k].classList.remove('on');
-          this.classList.add('on');
-        }else{
-          this.classList.toggle('on');
-          var any=false;
-          for(var k2=0;k2<bs.length;k2++)if(bs[k2].classList.contains('on'))any=true;
-          if(!any)for(var k3=0;k3<bs.length;k3++)bs[k3].classList.add('on');
+        this.classList.toggle('on');
+        var bs=res.querySelectorAll('.tbtn'),any=false,ons={};
+        for(var k4=0;k4<bs.length;k4++){
+          ons[bs[k4].getAttribute('data-t')]=bs[k4].classList.contains('on');
+          if(ons[bs[k4].getAttribute('data-t')])any=true;
         }
-        var ons={};
-        for(var k4=0;k4<bs.length;k4++)ons[bs[k4].getAttribute('data-t')]=bs[k4].classList.contains('on');
         var blocks=res.querySelectorAll('.term-block[data-t]');
         for(var k5=0;k5<blocks.length;k5++){
-          blocks[k5].style.display=ons[blocks[k5].getAttribute('data-t')]?'':'none';
+          var t=blocks[k5].getAttribute('data-t');
+          blocks[k5].style.display=(!any||ons[t])?'':'none';
         }
       };
     }
