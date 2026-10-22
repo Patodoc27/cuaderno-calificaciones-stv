@@ -399,7 +399,7 @@ function loadTab(bookKey,tab){
 /* ---------- grade extraction ---------- */
 function cellVal(c){
   if(!c)return null;
-  var v=c.v;
+  var v=c.f!=null?c.f:c.v;
   if(v==null)return null;
   if(typeof v==='number')return String(Math.round(v*100)/100).replace('.',',');
   var t=String(v).replace(/^\s+|\s+$/g,'');
