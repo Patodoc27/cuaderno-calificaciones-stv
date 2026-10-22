@@ -466,7 +466,7 @@ function extract(tabData,sid,bookKey,tab){
     /* activity column: include only if it has a label or a value */
     if(!lab&&(val==null))continue;
     /* qualitative-only columns (participación, desempeño, etc.) are not shown */
-    if(/particip|desempe|conduct|comprom|actitud|valoraci|logro|diagn/i.test(lab))continue;
+    if(/particip|desempe|conduct|comprom|actitud|valoraci|logro|diagn|prom/i.test(lab))continue;
     /* non-numeric marks (No logrado, Ausente, etc.) are not shown either */
     if(val==='—')continue;
     var an=lab?titleCase(lab):'Actividad';
