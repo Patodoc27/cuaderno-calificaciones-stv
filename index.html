@@ -497,10 +497,17 @@ function extract(tabData,sid,bookKey,tab){
     /* qualitative-only columns (participación, desempeño, etc.) are not shown */
     if(/partici|desempe|conduct|comprom|actitud|valoraci|logro|diagn|prom/i.test(lab))continue;
     /* non-numeric marks (No logrado, Ausente, etc.) are not shown either;
-       but a plain dash "-" in the sheet means "no corresponde" -> show — */
+       but a plain dash "-" in the sheet means "no corresponde" -> show —.
+       Fisica only: siglas del docente se traducen a texto completo */
     if(val==='—'){
       var rt=(cell&&(cell.f!=null?cell.f:cell.v)!=null)?String(cell.f!=null?cell.f:cell.v).replace(/^\s+|\s+$/g,''):'';
-      if(!/^[-–—]+$/.test(rt))continue;
+      var keep=/^[-–—]+$/.test(rt);
+      if(/^fisica\b/.test(norm(tab))){
+        var sig=rt.toUpperCase().replace(/[^A-Z]/g,'');
+        var SIG={'L':'Logrado','PL':'Por lograr','NL':'No logrado','NP':'No presentado','SL':'S. Logrado','SLOGRADO':'S. Logrado'};
+        if(SIG[sig]){val=SIG[sig];keep=true;}
+      }
+      if(!keep)continue;
     }
     var an=lab?titleCase(lab):'Actividad';
     if(dup[an]!=null){dup[an]++;an=an+' ('+dup[an]+')';}else{dup[an]=1;}
