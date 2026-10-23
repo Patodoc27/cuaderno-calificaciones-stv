@@ -402,9 +402,16 @@ function cellVal(c){
   if(!c)return null;
   var v=c.f!=null?c.f:c.v;
   if(v==null)return null;
-  if(typeof v==='number')return String(Math.round(v*100)/100).replace('.',',');
+  if(typeof v==='number'){
+    if(Math.round(v)===v)return String(v);
+    return v.toFixed(2).replace('.',',');
+  }
   var t=String(v).replace(/^\s+|\s+$/g,'');
-  if(/^-?\d+([.,]\d+)?$/.test(t))return t;
+  if(/^-?\d+([.,]\d+)?$/.test(t)){
+    var n=parseFloat(t.replace(',','.'));
+    if(Math.round(n)===n)return String(Math.round(n));
+    return n.toFixed(2).replace('.',',');
+  }
   return '—';
 }
 function termInt(v){
