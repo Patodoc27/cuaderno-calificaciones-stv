@@ -254,8 +254,8 @@ var SUBJ=[
  [/TECNOL[OÓ]GICA/,'Educación Tecnológica'],
  [/LENGUA EXTRANJERA N1/,'Lengua Extranjera · Nivel 1'],
  [/LENGUA EXTRANJERA N2/,'Lengua Extranjera · Nivel 2'],
- [/ART[IÍ]STICA M[UÚ]SICA/,'Ed. Artística · Música'],
- [/ART[IÍ]STICA TEATRO/,'Ed. Artística · Teatro'],
+ [/ART[IÍ]STICA M[UÚ]SICA/,'Educación Artística · Música'],
+ [/ART[IÍ]STICA TEATRO/,'Educación Artística · Teatro'],
  [/INFORM[AÁ]TICA/,'Informática'],
  [/ROB[OÓ]TICA/,'Robótica'],
  [/FORMACI[OÓ]N RELIGIOSA/,'Formación Religiosa'],
@@ -638,7 +638,7 @@ function tabsFor(sid){
 function orderTabs(list){
   function ord(tab){
     var n=subjName(tab);
-    var order=['Lengua y Literatura','Matemática','Historia','Geografía','Biología','Física','Formación Ética y Ciudadana','Educación Tecnológica','Educación Física','Lengua Extranjera · Nivel 1','Lengua Extranjera · Nivel 2','Ed. Artística · Música','Ed. Artística · Teatro','Informática','Robótica','Formación Religiosa','Ajedrez','Deporte'];
+    var order=['Lengua y Literatura','Matemática','Historia','Geografía','Biología','Física','Formación Ética y Ciudadana','Educación Tecnológica','Educación Física','Lengua Extranjera · Nivel 1','Lengua Extranjera · Nivel 2','Educación Artística · Música','Educación Artística · Teatro','Informática','Robótica','Formación Religiosa','Ajedrez','Deporte'];
     var ix=order.indexOf(n);return ix<0?99:ix;
   }
   return list.slice().sort(function(a,b){return ord(a.t)-ord(b.t);});
