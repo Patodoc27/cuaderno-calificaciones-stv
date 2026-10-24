@@ -401,10 +401,11 @@ function cellVal(c){
 }
 function termInt(v){
   /* TERM/FINAL columns: always integer, even when the sheet holds a formula
-     (e.g. 7.77 -> 8); teacher-closed notes are whole numbers */
+     (e.g. 7.77 -> 8); teacher-closed notes are whole numbers.
+     Un valor no numerico jamas sale a pantalla */
   if(v==null||v==='—')return v;
   var n=parseFloat(String(v).replace(',','.'));
-  if(isNaN(n))return v;
+  if(isNaN(n)||n>20)return '—';
   return String(Math.round(n));
 }
 function classify(lab){
@@ -476,8 +477,12 @@ function extract(tabData,sid,bookKey,tab){
       continue;
     }
     if(kind==='final'){res.final=termInt(val);continue;}
-    if(kind==='intens'){if(val!=null&&val!=='—')res.extras['Intensificación']=val;continue;}
-    if(kind==='mesa'){if(val!=null&&val!=='—')res.extras[titleCase(lab)]=val;continue;}
+    if(kind==='intens'||kind==='mesa'){
+      /* solo numeros: texto o valores fuera de escala nunca llegan a pantalla */
+      var ev=numV(val);
+      if(!isNaN(ev)&&ev<=20)res.extras[kind==='intens'?'Intensificación':titleCase(lab)]=val;
+      continue;
+    }
     if(kind==='skip'||kind==='name')continue;
     /* activity column: include only if it has a label or a value */
     if(!lab&&(val==null))continue;
