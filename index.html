@@ -712,7 +712,7 @@ function run(sid){
     if(mySeq!==runSeq)return;
     prog.hidden=true;
     var h='<div class="card student-head"><div class="nm">'+esc(fmtName(st.n))+'</div><span class="badge">1° '+st.c+'</span></div>';
-    h+='<p class="legend-note">Tocá una materia para ver las calificaciones parciales, o elegí un trimestre para filtrar.</p>';
+    h+='<p class="legend-note">Elegí un trimestre para filtrar.</p>';
     h+='<div class="tfilters">'
       +'<button class="tbtn" data-t="2" type="button">3er trimestre</button>'
       +'<button class="tbtn" data-t="1" type="button">2do trimestre</button>'
@@ -750,6 +750,12 @@ function run(sid){
         }
         speakFilter(ons,any);
       };
+    }
+    var dts=res.querySelectorAll('details.subj');
+    for(var di=0;di<dts.length;di++){
+      dts[di].addEventListener('toggle',function(){
+        if(this.open){var nm=this.querySelector('.subj-name');if(nm)speak(nm.textContent);}
+      });
     }
     document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
   });
