@@ -412,6 +412,8 @@ function classify(lab){
   if(!l)return'unknown';
   if(l.indexOf('perfil agustin')===0||l.indexOf('perfil agustino')===0)return'skip';
   if(l.indexOf('observaciones')>-1)return'skip';
+  /* la columna DNI (documento) nunca se muestra: dato sensible */
+  if(/\bdni\b|documento|doc\.?\s|identidad|libreta|matricula|n\s*doc/.test(l))return'skip';
   if(/^[123]\s*termino/.test(l)||/^[123]\s*termino/.test(l.replace(/o/,''))||/\btermino\b/.test(l)&&/^[123]/.test(l))return'term';
   if(l.indexOf('calif')===0&&l.indexOf('final')>-1)return'final';
   if(l.indexOf('intensificacion')>-1)return'intens';
@@ -494,6 +496,10 @@ function extract(tabData,sid,bookKey,tab){
       }
       if(!keep)continue;
     }
+    /* candado: un numero que no puede ser nota (escala 1-10) jamas se dibuja —
+       cubre DNI u otros datos cargados en columnas con otro nombre */
+    var _nv=numV(val);
+    if(!isNaN(_nv)&&_nv>20)continue;
     var an=lab?titleCase(lab):'Actividad';
     if(dup[an]!=null){dup[an]++;an=an+' ('+dup[an]+')';}else{dup[an]=1;}
     if(ci<nameCol)continue;
@@ -610,10 +616,29 @@ function speakFilter(ons,any){
   else {speak('No hay ningún trimestre seleccionado. Elija un trimestre para ver las calificaciones.');return;}
   speak('Está visualizando '+frase);
 }
+/* nombres propios y apellidos con tilde segun ortografia (las listas llegan
+   * en mayusculas sin tildes) */
+var ACCNAME={
+ GARCIA:'García',LOPEZ:'López',FERNANDEZ:'Fernández',GONZALEZ:'González',
+ GIMENEZ:'Giménez',JIMENEZ:'Jiménez',JUAREZ:'Juárez',GUZMAN:'Guzmán',
+ MENDEZ:'Méndez',MARTINEZ:'Martínez',VAZQUEZ:'Vázquez',VELAZQUEZ:'Velázquez',
+ BENITEZ:'Benítez',NARVAEZ:'Narváez',SANTILLAN:'Santillán',
+ JOSE:'José',TOMAS:'Tomás',ELIAS:'Elías',ISAIAS:'Isaías',ROMAN:'Román',
+ AGUSTIN:'Agustín',VALENTIN:'Valentín',SOFIA:'Sofía',MARIA:'María',
+ ANGEL:'Ángel',ALVARO:'Álvaro',GASTON:'Gastón',ITATI:'Itatí',
+ BENJAMIN:'Benjamín',ESTEFANIA:'Estefanía',PIA:'Pía',INES:'Inés',BARBARA:'Bárbara'
+};
+function accentWord(w){
+  var key=norm(w).toUpperCase();
+  return ACCNAME[key]||w;
+}
+function accentName(s){
+  return s.split(' ').map(function(w){return accentWord(w);}).join(' ');
+}
 function fmtName(n){
   var p=n.split(',');
-  if(p.length>1)return titleCase(p[1].trim().toLowerCase?p[1]:p[1])+' '+titleCase(p[0]);
-  return titleCase(n);
+  if(p.length>1)return accentName(titleCase(p[1].trim().toLowerCase?p[1]:p[1]))+' '+accentName(titleCase(p[0]));
+  return accentName(titleCase(n));
 }
 
 /* ---------- flow ---------- */
