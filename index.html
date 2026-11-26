@@ -213,6 +213,9 @@ footer{padding:18px 0 26px;text-align:center;font-size:.72rem;color:var(--ink-so
 <script>
 (function(){
 'use strict';
+/* NOTA FINAL: en false no se muestra en ninguna materia aunque este cargada.
+   Para habilitarla, cambiar a true. */
+var MOSTRAR_NOTA_FINAL=false;
 var VAULT=JSON.parse(document.getElementById('school-data').textContent);
 var BOOKS,TABS,ROSTER,LOOKUP,KEYS;
 function b64d(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
@@ -476,7 +479,7 @@ function extract(tabData,sid,bookKey,tab){
       termSeen++;cur=termSeen<3?termSeen:2;dup={};
       continue;
     }
-    if(kind==='final'){res.final=termInt(val);continue;}
+    if(kind==='final'){if(MOSTRAR_NOTA_FINAL)res.final=termInt(val);continue;}
     if(kind==='intens'||kind==='mesa'){
       /* solo numeros: texto o valores fuera de escala nunca llegan a pantalla */
       var ev=numV(val);
