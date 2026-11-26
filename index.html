@@ -216,6 +216,9 @@ footer{padding:18px 0 26px;text-align:center;font-size:.72rem;color:var(--ink-so
 /* NOTA FINAL: en false no se muestra en ninguna materia aunque este cargada.
    Para habilitarla, cambiar a true. */
 var MOSTRAR_NOTA_FINAL=false;
+/* TERCER TRIMESTRE: en false no se muestran sus notas ni actividades (ni Otras instancias).
+   Para habilitarlo, cambiar a true. */
+var MOSTRAR_TERCER_TRIMESTRE=false;
 var VAULT=JSON.parse(document.getElementById('school-data').textContent);
 var BOOKS,TABS,ROSTER,LOOKUP,KEYS;
 function b64d(s){var b=atob(s),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u;}
@@ -517,6 +520,7 @@ function extract(tabData,sid,bookKey,tab){
     if(ci<nameCol)continue;
     res.t[cur<3?cur:2].acts.push([an,val]);
   }
+  if(!MOSTRAR_TERCER_TRIMESTRE){res.t[2]={term:null,acts:[]};res.extras={};}
   return res;
 }
 
@@ -734,7 +738,7 @@ function run(sid){
     var h='<div class="card student-head"><div class="nm">'+esc(fmtName(st.n))+'</div><span class="badge">1° '+st.c+'</span></div>';
     h+='<p class="legend-note">Elegí un trimestre para filtrar.</p>';
     h+='<div class="tfilters">'
-      +'<button class="tbtn" data-t="2" type="button">3er trimestre</button>'
+      +(MOSTRAR_TERCER_TRIMESTRE?'<button class="tbtn" data-t="2" type="button">3er trimestre</button>':'')
       +'<button class="tbtn" data-t="1" type="button">2do trimestre</button>'
       +'<button class="tbtn" data-t="0" type="button">1er trimestre</button></div>';
     h+='<div class="subjects">';
