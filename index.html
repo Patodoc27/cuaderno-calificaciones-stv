@@ -475,6 +475,8 @@ function extract(tabData,sid,bookKey,tab){
     if(ci===nameCol)continue;
     var lab=(cols[ci].label||'').replace(/\s+/g,' ').replace(/^\s+|\s+$/g,'');
     var kind=classify(lab);
+    /* Fisica: columnas que no ven las familias */
+    if(/^fisica\b/.test(norm(tab))&&/seman\w* de intensificacion|conceptual/.test(norm(lab)))continue;
     var cell=row.c?row.c[ci]:null;
     var val=cellVal(cell);
     if(kind==='term'){
