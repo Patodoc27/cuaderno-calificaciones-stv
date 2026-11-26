@@ -484,6 +484,8 @@ function extract(tabData,sid,bookKey,tab){
       continue;
     }
     if(kind==='skip'||kind==='name')continue;
+    /* Biologia: columnas internas que no ven las familias */
+    if(/^biologia\b/.test(norm(tab))&&/promedio ponderado|puntaje adicional|muestra anual/.test(norm(lab)))continue;
     /* activity column: include only if it has a label or a value */
     if(!lab&&(val==null))continue;
     /* qualitative-only columns (participación, desempeño, etc.) are not shown */
