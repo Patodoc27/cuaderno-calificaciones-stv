@@ -178,6 +178,30 @@ footer{padding:18px 0 26px;text-align:center;font-size:.72rem;color:var(--ink-so
   details.subj{break-inside:avoid}
   details.subj summary{cursor:default}
 }
+/* ---------- Período de Intensificación y Acreditación ---------- */
+details.subj.subj-intens{border:2px solid var(--red-dark);box-shadow:0 0 0 2px rgba(126,31,36,.18),0 8px 22px rgba(126,31,36,.16);background:linear-gradient(180deg,#fdf1ef,var(--card) 60%)}
+details.subj.subj-intens .subj-ico{background:var(--red-dark);color:#fff}
+details.subj.subj-intens .subj-name{color:var(--red-dark)}
+.intens-chip{display:inline-block;margin-left:8px;padding:3px 9px;border-radius:999px;background:var(--red-dark);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;white-space:nowrap}
+.intens{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(25,20,20,.58);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.intens[hidden]{display:none}
+.intens-card{position:relative;width:100%;max-width:440px;max-height:calc(100vh - 32px);overflow:auto;border-radius:22px;padding:30px 22px 22px;color:#fff;text-align:center;
+  background:linear-gradient(160deg,var(--red-dark) 0%,#96282C 55%,var(--red) 100%);box-shadow:0 18px 50px rgba(0,0,0,.35);animation:intensIn .25s ease-out}
+@keyframes intensIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.intens-x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:1.6rem;line-height:1;cursor:pointer}
+.intens-x:focus-visible,.intens-btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.intens-tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 12px;margin-bottom:12px}
+.intens-card h2{font-family:'Fraunces',Georgia,serif;font-weight:800;font-size:clamp(1.35rem,6vw,1.7rem);line-height:1.15;margin:0 6px 6px}
+.intens-date{font-weight:600;font-size:.95rem;opacity:.95;margin-bottom:14px}
+.intens-txt{font-size:1rem;line-height:1.5;margin-bottom:18px}
+.intens-btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:54px;width:100%;border-radius:14px;background:#fff;color:var(--red-dark);font-weight:700;font-size:1.05rem;text-decoration:none;box-shadow:0 6px 16px rgba(0,0,0,.2)}
+.intens-btn svg{width:22px;height:22px;flex:none}
+.intens-bar{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin:0 0 16px;padding:14px 16px;border-radius:var(--radius);color:#fff;
+  background:linear-gradient(160deg,var(--red-dark) 0%,var(--red) 100%);box-shadow:0 6px 22px rgba(126,31,36,.18)}
+.intens-bar[hidden]{display:none}
+.intens-bar b{display:block;font-size:.95rem}
+.intens-bar span{font-size:.82rem;opacity:.92}
+.intens-bar button{min-height:44px;padding:0 16px;border:0;border-radius:12px;background:#fff;color:var(--red-dark);font-weight:700;font-size:.95rem;cursor:pointer}
 </style>
 </head>
 <body>
@@ -205,7 +229,21 @@ footer{padding:18px 0 26px;text-align:center;font-size:.72rem;color:var(--ink-so
     <div class="progress" id="progress" hidden><span class="spin"></span><span id="progressTxt"></span></div>
     <div class="choices" id="choices"></div>
   </section>
+  <div class="intens-bar" id="intensBar" hidden>
+    <div><b>Período de Intensificación y Acreditación 2026</b></div>
+    <button type="button" id="intensReopen">Ver comunicado</button>
+  </div>
   <div id="result"></div>
+</div>
+<div class="intens" id="intens" hidden role="dialog" aria-modal="true" aria-labelledby="intensT">
+  <div class="intens-card">
+    <button class="intens-x" id="intensX" type="button" aria-label="Cerrar">&times;</button>
+    <div class="intens-tag">Información importante</div>
+    <h2 id="intensT">Período de Intensificación y Acreditación 2026</h2>
+    <p class="intens-date">Del lunes 30 de noviembre al viernes 4 de diciembre</p>
+    <p class="intens-txt" id="intensTxt"></p>
+    <a class="intens-btn" id="intensBtn" href="#" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Descargar comunicado (PDF)</a>
+  </div>
 </div>
 </main>
 <footer>Colegio Santo Tomás de Villanueva · Cuaderno docente en línea</footer>
@@ -690,7 +728,7 @@ form.addEventListener('submit',function(e){
   e.preventDefault();
   var rawKey=keyEl.value;
   if(!String(rawKey||'').replace(/^\s+|\s+$/g,''))return;
-  res.innerHTML='';choices.innerHTML='';setMsg('');prog.hidden=false;
+  res.innerHTML='';choices.innerHTML='';setMsg('');prog.hidden=false;intensReset();
   progTxt.textContent='Verificando clave…';
   (async function(){
     try{
@@ -703,12 +741,63 @@ form.addEventListener('submit',function(e){
         return;
       }
       run(sid);
+      intensCheck(rawKey,ROSTER[sid]);
     }catch(err){
       prog.hidden=true;
       setMsg('No se pudo verificar la clave en este momento. Probá de nuevo en unos segundos.',true);
     }
   })();
 });
+/* ---------- Período de Intensificación y Acreditación 2026 ----------
+   Cada comunicado está cifrado con la clave personal de su familia;
+   si no existe archivo para esa clave, no se muestra nada. */
+var intensURL=null,intensSeq=0,intensSubj=null;
+function intensMark(){
+  if(!intensSubj)return;
+  var subs=document.querySelectorAll('#result details.subj');
+  for(var i=0;i<subs.length;i++){
+    var nm=subs[i].querySelector('.subj-name');if(!nm)continue;
+    var name=nm.getAttribute('data-n')||nm.textContent;nm.setAttribute('data-n',name);
+    if(intensSubj.indexOf(name)>-1&&!subs[i].classList.contains('subj-intens')){
+      subs[i].classList.add('subj-intens');
+      var c=document.createElement('span');c.className='intens-chip';c.textContent='Intensifica';nm.appendChild(c);
+    }
+  }
+}
+function intensHide(){document.getElementById('intens').hidden=true;document.body.style.overflow='';}
+function intensShow(){document.getElementById('intens').hidden=false;document.body.style.overflow='hidden';try{document.getElementById('intensBtn').focus();}catch(e){}}
+function intensReset(){
+  intensSeq++;intensSubj=null;intensHide();document.getElementById('intensBar').hidden=true;
+  if(intensURL){try{URL.revokeObjectURL(intensURL);}catch(e){}intensURL=null;}
+}
+async function intensCheck(rawKey,st){
+  var my=++intensSeq;
+  try{
+    var k=String(rawKey||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    var dg=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('intens2026|'+k));
+    var nm=Array.prototype.map.call(new Uint8Array(dg),function(x){return ('0'+x.toString(16)).slice(-2);}).join('').slice(0,32);
+    var r=await fetch('intensificacion/'+nm+'.bin',{cache:'no-store'});
+    if(!r.ok||my!==intensSeq)return;
+    var buf=new Uint8Array(await r.arrayBuffer());
+    var km=await crypto.subtle.importKey('raw',new TextEncoder().encode(k),'PBKDF2',false,['deriveKey']);
+    var key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:buf.slice(0,16),iterations:150000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+    var pt=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:buf.slice(16,28)},key,buf.slice(28)));
+    if(my!==intensSeq)return;
+    var nl=pt.indexOf(10),head=JSON.parse(new TextDecoder().decode(pt.slice(0,nl)));
+    intensURL=URL.createObjectURL(new Blob([pt.slice(nl+1)],{type:'application/pdf'}));
+    intensSubj=head.a||[];intensMark();
+    var a=document.getElementById('intensBtn');a.href=intensURL;a.setAttribute('download',head.f||'Comunicado_Intensificacion.pdf');
+    var nom=String(st.n||'').split(',');nom=(nom[1]||nom[0]||'').replace(/^\s+/,'').split(/\s+/)[0]||'';
+    nom=nom.charAt(0).toUpperCase()+nom.slice(1).toLowerCase();
+    document.getElementById('intensTxt').textContent=nom+' participa de este período. Las asignaturas, los temas, la modalidad de evaluación y los días y horarios se detallan en el siguiente documento.';
+    document.getElementById('intensBar').hidden=false;
+    intensShow();
+  }catch(e){/* sin comunicado o sin conexión: no se muestra nada */}
+}
+document.getElementById('intensX').addEventListener('click',intensHide);
+document.getElementById('intensReopen').addEventListener('click',intensShow);
+document.getElementById('intens').addEventListener('click',function(e){if(e.target===this)intensHide();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')intensHide();});
 var runSeq=0;
 function run(sid){
   var mySeq=++runSeq;
@@ -752,6 +841,7 @@ function run(sid){
     h+='</div>';
     h+='<div class="footnote"><span class="live"><b>Lectura en vivo del cuaderno docente</b></span> — cuando un docente carga o corrige una nota en la planilla, aparece acá automáticamente.<br><b>0</b> = trabajo pendiente de entrega<br><b>1</b> = no presentado (calificación cerrada)<br><b>—</b> = sin calificación numérica.</div>';
     res.innerHTML=h;
+    intensMark();
     document.getElementById('searchCard').hidden=true;
     speakWelcome(st);
     var tbns=res.querySelectorAll('.tbtn');
@@ -768,19 +858,13 @@ function run(sid){
           var t=blocks[k5].getAttribute('data-t');
           blocks[k5].style.display=ons[t]?'':'none';
         }
-        var subs=res.querySelectorAll('details.subj[data-lows]');
-        for(var k6=0;k6<subs.length;k6++){
-          var lw=subs[k6].getAttribute('data-lows').split(',');
-          var vis=any&&((ons['0']&&lw[0]==='1')||(ons['1']&&lw[1]==='1')||(ons['2']&&lw[2]==='1'));
-          subs[k6].classList.toggle('alert',vis);
-        }
         speakFilter(ons,any);
       };
     }
     var dts=res.querySelectorAll('details.subj');
     for(var di=0;di<dts.length;di++){
       dts[di].addEventListener('toggle',function(){
-        if(this.open){var nm=this.querySelector('.subj-name');if(nm)speak(nm.textContent);}
+        if(this.open){var nm=this.querySelector('.subj-name');if(nm)speak(nm.getAttribute('data-n')||nm.textContent);}
       });
     }
     document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
